@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ══════════════════════════════════════════════════
+         CONFIG — Edita estas etiquetas meta con tu marca
+         ══════════════════════════════════════════════════ -->
+    <title>Lucky Dolls × TU CLUB — Colección Oficial</title>
+    <meta name="description" content="La colección oficial de figuras LuckyDoll de poliresina para TU CLUB, en colaboración con MERCHANDREAM.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Anton (display brutalista) + Barlow Condensed (cuerpo de texto) -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:ital,wght@0,300;0,500;0,700;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ══════════════════════════════════════════════
+           TOKENS DE DISEÑO
+           ══════════════════════════════════════════════ */
+        :root {
+            --accent:     #007bff;   /* azul de marca — cambia aquí el color del club */
+            --accent-dim: #0062cc;
+            --ink:        #0A0A0A;
+            --paper:      #F5F2EB;   /* crema sucia para secciones claras */
+            --mid:        #141414;
+            --rule:       rgba(255,255,255,0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Barlow Condensed', sans-serif;
+            background: var(--ink);
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        /* ── Cursor personalizado ── */
+        #cursor {
+            width: 14px; height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed; top: 0; left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.15s ease;
+            will-change: transform;
+        }
+        #cursor.expand { transform: scale(3.5); }
+
+        .font-display { font-family: 'Anton', sans-serif; }
+        .text-accent   { color: var(--accent); }
+        .bg-accent     { background: var(--accent); }
+
+        /* ── Textura de grano ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* ══ NAV ══ */
+        header { position: sticky; top: 0; z-index: 200; background: var(--ink); border-bottom: 1px solid var(--rule); }
+        .nav-link { font-family: 'Anton', sans-serif; font-size: .85rem; letter-spacing: .15em; color: rgba(255,255,255,.5); text-decoration: none; transition: color .2s; }
+        .nav-link:hover { color: var(--accent); }
+        .pill-cta {
+            font-family: 'Anton', sans-serif; font-size: .75rem; letter-spacing: .2em;
+            background: var(--accent); color: #fff; padding: .5rem 1.4rem;
+            border-radius: 2px; text-decoration: none;
+            transition: background .2s, transform .2s; display: inline-block;
+        }
+        .pill-cta:hover { background: #fff; transform: translateY(-2px); }
+        .ham-line { display: block; width: 22px; height: 1.5px; background: #fff; transition: all .3s ease; transform-origin: center; }
+        #mobileMenu { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .4s ease, opacity .4s ease; }
+        #mobileMenu.open { max-height: 500px; opacity: 1; }
+
+        /* ══ HERO MARQUEE ══ */
+        .hero-marquee-track { display: flex; animation: marquee 18s linear infinite; will-change: transform; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* ══ HERO TITLE ══ */
+        .hero-title {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(5rem, 16vw, 14rem);
+            line-height: .88;
+            letter-spacing: -.02em;
+            color: #fff;
+        }
+        .hero-title .slash { color: var(--accent); }
+
+        /* ══ BADGE DE COLABORACIÓN ══ */
+        .collab-badge {
+            font-family: 'Anton', sans-serif; font-size: .7rem; letter-spacing: .25em;
+            background: var(--accent); color: #fff; padding: .3rem .9rem;
+            clip-path: polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+        }
+
+        /* ══ FEATURES ══ */
+        .feature-num {
+            font-family: 'Anton', sans-serif; font-size: 5rem; line-height: 1;
+            color: var(--accent); opacity: .15;
+            position: absolute; top: -.5rem; left: 0;
+        }
+
+        /* ══ CATALOG SECTION ══ */
+        .catalog-section { background: var(--paper); color: var(--ink); position: relative; overflow: hidden; }
+        .catalog-section::before {
+            content: 'CATÁLOGO';
+            font-family: 'Anton', sans-serif; font-size: 22vw;
+            color: rgba(0,0,0,.04);
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            white-space: nowrap; pointer-events: none; user-select: none;
+        }
+
+        /* ══ PRODUCT CARD ══ */
+        .product-card {
+            background: #fff; border: 1.5px solid rgba(0,0,0,.08);
+            border-radius: 0; overflow: hidden; cursor: none;
+            transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease;
+            position: relative;
+        }
+        .product-card::after {
+            content: ''; position: absolute; inset: 0;
+            border: 2px solid var(--accent); opacity: 0;
+            transition: opacity .25s ease; pointer-events: none;
+        }
+        .product-card:hover { transform: translate(-4px,-6px); box-shadow: 8px 10px 0px var(--ink); }
+        .product-card:hover::after { opacity: 1; }
+        .product-card .card-img { overflow: hidden; height: 260px; background: #f0ede6; }
+        .product-card .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+        .product-card:hover .card-img img { transform: scale(1.07); }
+        .card-tag {
+            font-family: 'Anton', sans-serif; font-size: .65rem; letter-spacing: .2em;
+            padding: .2rem .7rem;
+            clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+            display: inline-block;
+        }
+        .card-tag.star  { background: var(--accent); color: #fff; }
+        .card-tag.sell  { background: var(--ink); color: #fff; }
+        .card-tag.basic { background: #e0ddd6; color: var(--ink); }
+
+        /* ══ ABOUT SECTION ══ */
+        .about-section { background: var(--mid); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); overflow: hidden; }
+
+        /* ══ ORDER CTA ══ */
+        .order-section { background: var(--accent); color: #fff; position: relative; overflow: hidden; }
+        .order-section::before {
+            content: ''; position: absolute; top: -60%; left: -20%;
+            width: 140%; height: 200%;
+            background: radial-gradient(ellipse at 60% 40%,rgba(0,0,0,.07),transparent 70%);
+            pointer-events: none;
+        }
+        .order-title { font-family: 'Anton', sans-serif; font-size: clamp(3.5rem,10vw,9rem); line-height: .9; letter-spacing: -.02em; color: #fff; }
+        .order-btn {
+            font-family: 'Anton', sans-serif; font-size: 1rem; letter-spacing: .2em;
+            background: #fff; color: var(--accent); padding: 1rem 2.5rem;
+            border: none; cursor: none;
+            clip-path: polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+            transition: background .2s, transform .2s;
+            text-decoration: none; display: inline-block;
+        }
+        .order-btn:hover { background: #e8f0ff; transform: translateY(-3px); }
+
+        /* ══ MODAL ══ */
+        #productModal { display: none; }
+        #productModal.open { display: flex; animation: fadeModal .25s ease forwards; }
+        @keyframes fadeModal { from { opacity:0; } to { opacity:1; } }
+        .modal-inner { animation: slideModal .3s cubic-bezier(.22,1,.36,1) forwards; }
+        @keyframes slideModal { from { transform:translateY(30px); opacity:0; } to { transform:none; opacity:1; } }
+        .thumbnail-image.active { border-color: var(--accent) !important; }
+        .price-table thead th { background: var(--ink); color: var(--accent); }
+        .price-val { color: var(--ink); font-family: 'Anton', sans-serif; font-size: 1.1rem; }
+        .modal-scroll::-webkit-scrollbar { width: 3px; }
+        .modal-scroll::-webkit-scrollbar-track { background: #f5f2eb; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: var(--ink); }
+
+        /* ══ REVEAL ══ */
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s cubic-bezier(.22,1,.36,1); }
+        .reveal.visible { opacity: 1; transform: none; }
+
+        /* ══ RESPONSIVE ══ */
+        @media (min-width: 768px) {
+            #desktopNav { display: block !important; }
+            #hamburger  { display: none !important; }
+            #modalLayout { flex-direction: row !important; }
+            #carouselPanel { width: 50% !important; height: auto !important; min-height: 400px; }
+            #modalInner { max-height: 90vh; }
+            .about-cols { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 767px) {
+            .order-flex { flex-direction: column !important; }
+        }
+    </style>
+</head>
+
+<body>
+<!-- Cursor -->
+<div id="cursor"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     HEADER
+     ══════════════════════════════════════════════════════════ -->
+<header>
+    <div style="max-width:1400px;margin:auto;padding:0 1.5rem;">
+        <nav style="display:flex;align-items:center;justify-content:space-between;height:64px;">
+
+            <a href="#" style="text-decoration:none;">
+                <span class="font-display" style="font-size:1.6rem;letter-spacing:.05em;color:#fff;">LUCKY<span class="text-accent">DOLLS</span></span>
+                <!-- ✏️ REEMPLAZA: LUCKY DOLLS -->
+                <span style="display:block;font-size:.6rem;letter-spacing:.3em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-top:-2px;">LUCKY DOLLS · Catálogo</span>
+            </a>
+
+            <div style="display:none;" id="desktopNav">
+                <div style="display:flex;align-items:center;gap:2.5rem;">
+                    <a href="#catalogo" class="nav-link">Catálogo</a>
+                    <a href="#sobre"    class="nav-link">Colaboración</a>
+                    <a href="#pedido"   class="pill-cta">Solicitar Pedido</a>
+                </div>
+            </div>
+
+            <button id="hamburger" aria-label="Menú" style="background:none;border:none;cursor:none;display:flex;flex-direction:column;gap:5px;padding:4px;">
+                <span class="ham-line" id="hl1"></span>
+                <span class="ham-line" id="hl2"></span>
+                <span class="ham-line" id="hl3" style="width:14px;"></span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="mobileMenu" style="border-top:1px solid var(--rule);">
+        <div style="max-width:1400px;margin:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1.2rem;">
+            <a href="#catalogo" class="nav-link mobile-nav-link" style="font-size:2rem;color:#fff;">CATÁLOGO</a>
+            <a href="#sobre"    class="nav-link mobile-nav-link" style="font-size:2rem;color:#fff;">COLABORACIÓN</a>
+            <a href="#pedido"   class="pill-cta mobile-nav-link" style="text-align:center;font-size:.9rem;margin-top:.5rem;">SOLICITAR PEDIDO</a>
+        </div>
+    </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════════════════ -->
+<section style="min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;">
+    <!-- Grid de fondo -->
+    <div style="position:absolute;inset:0;background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);background-size:60px 60px;z-index:0;"></div>
+    <!-- Resplandor neón -->
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 80%,rgba(232,255,0,.06) 0%,transparent 65%);z-index:0;"></div>
+
+    <div style="position:relative;z-index:10;max-width:1400px;margin:auto;padding:0 1.5rem;width:100%;padding-top:8rem;">
+
+        <div style="margin-bottom:2rem;display:flex;align-items:center;gap:1rem;" class="reveal">
+            <!-- ✏️ REEMPLAZA -->
+            <span class="collab-badge">MERCHANDREAM × TU CLUB</span>
+            <span style="font-size:.75rem;letter-spacing:.2em;color:rgba(255,255,255,.35);text-transform:uppercase;">Colección Oficial 2026</span>
+        </div>
+
+        <div class="reveal" style="transition-delay:.08s;">
+            <h1 class="hero-title">
+                FIGURAS<br>
+                PARA <span class="slash">/</span><br>
+                AUTÉNTICOS<br>
+                <span class="slash">FANS.</span>
+            </h1>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:2rem;margin-top:2.5rem;padding-bottom:3rem;" class="reveal" >
+            <p style="max-width:420px;font-size:1.1rem;line-height:1.5;color:rgba(255,255,255,.5);font-weight:300;">
+                <!-- ✏️ REEMPLAZA -->
+                LuckyDolls son figuras cabezonas de poliresina de alta calidad, fabricadas en exclusiva para <strong style="color:#fff;">TU CLUB</strong> en colaboración con <strong style="color:#fff;">MERCHANDREAM</strong>.
+            </p>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <a href="#catalogo" class="pill-cta" style="font-size:.85rem;padding:.8rem 2rem;">VER CATÁLOGO</a>
+                <a href="#pedido"
+                   style="font-family:'Anton',sans-serif;font-size:.85rem;letter-spacing:.15em;color:rgba(255,255,255,.4);padding:.8rem 1rem;border:1px solid var(--rule);text-decoration:none;transition:color .2s,border-color .2s;"
+                   onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.3)'"
+                   onmouseout="this.style.color='rgba(255,255,255,.4)';this.style.borderColor='var(--rule)'">SOLICITAR PRECIO →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marquee -->
+    <div style="overflow:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--accent);padding:.55rem 0;position:relative;z-index:10;">
+        <div class="hero-marquee-track" style="white-space:nowrap;font-family:'Anton',sans-serif;font-size:.8rem;letter-spacing:.3em;color:var(--ink);">
+            <span style="padding:0 2rem;">POLIRESINA DE ALTA CALIDAD</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">EDICIÓN LIMITADA</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">PERSONALIZACIÓN TOTAL</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">PIEZA DE COLECCIONISTA</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">IDEAL PARA RETAIL</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">POLIRESINA DE ALTA CALIDAD</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">EDICIÓN LIMITADA</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">PERSONALIZACIÓN TOTAL</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">PIEZA DE COLECCIONISTA</span><span style="padding:0 2rem;">·</span>
+            <span style="padding:0 2rem;">IDEAL PARA RETAIL</span><span style="padding:0 2rem;">·</span>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURES
+     ══════════════════════════════════════════════════════════ -->
+<section style="background:var(--mid);padding:6rem 1.5rem;border-bottom:1px solid var(--rule);">
+    <div style="max-width:1400px;margin:auto;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:0;border:1px solid var(--rule);">
+
+            <div class="reveal" style="padding:3rem 2.5rem;border-right:1px solid var(--rule);position:relative;">
+                <span class="feature-num">01</span>
+                <svg style="margin-bottom:1rem;" width="36" height="36" fill="none" stroke="var(--accent)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                <h3 class="font-display" style="font-size:1.5rem;letter-spacing:.1em;margin-bottom:.75rem;color:#fff;">FIGURAS PERSONALIZADAS</h3>
+                <!-- ✏️ REEMPLAZA: TU CLUB -->
+                <p style="font-size:1rem;line-height:1.6;color:rgba(255,255,255,.45);font-weight:300;">Esculpidas fielmente a partir de los jugadores e iconos de TU CLUB. Cada detalle, auténtico.</p>
+            </div>
+
+            <div class="reveal" style="padding:3rem 2.5rem;border-right:1px solid var(--rule);position:relative;transition-delay:.1s;">
+                <span class="feature-num">02</span>
+                <svg style="margin-bottom:1rem;" width="36" height="36" fill="none" stroke="var(--accent)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                <h3 class="font-display" style="font-size:1.5rem;letter-spacing:.1em;margin-bottom:.75rem;color:#fff;">EDICIÓN LIMITADA</h3>
+                <p style="font-size:1rem;line-height:1.6;color:rgba(255,255,255,.45);font-weight:300;">Tiradas cortas y controladas. Cada figura es una pieza de coleccionista con valor real para el fan.</p>
+            </div>
+
+            <div class="reveal" style="padding:3rem 2.5rem;position:relative;transition-delay:.2s;">
+                <span class="feature-num">03</span>
+                <svg style="margin-bottom:1rem;" width="36" height="36" fill="none" stroke="var(--accent)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                <h3 class="font-display" style="font-size:1.5rem;letter-spacing:.1em;margin-bottom:.75rem;color:#fff;">LISTO PARA RETAIL</h3>
+                <p style="font-size:1rem;line-height:1.6;color:rgba(255,255,255,.45);font-weight:300;">Acabado premium. Perfecto para tienda de club, campañas de fan engagement y regalos corporativos.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     CATÁLOGO
+     ══════════════════════════════════════════════════════════ -->
+<section id="catalogo" class="catalog-section" style="padding:7rem 1.5rem;">
+    <div style="max-width:1400px;margin:auto;position:relative;z-index:1;">
+
+        <div style="margin-bottom:5rem;" class="reveal">
+            <p style="font-family:'Anton',sans-serif;font-size:.75rem;letter-spacing:.35em;color:var(--accent);text-transform:uppercase;margin-bottom:.75rem;">
+                <!-- ✏️ REEMPLAZA -->
+                MERCHANDREAM × TU CLUB
+            </p>
+            <h2 class="font-display" style="font-size:clamp(3rem,8vw,7rem);line-height:.9;color:var(--ink);letter-spacing:-.01em;">
+                CATÁLOGO<br>OFICIAL<span style="color:var(--accent);">.</span>
+            </h2>
+            <div style="width:200px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin-top:1.5rem;"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;">
+
+            <!-- T-Real -->
+            <div class="product-card reveal" data-id="T-Real">
+                <div class="card-img"><img src="./assets/luckyDolls/Real/Pic01.png" alt="LuckyDoll T-Real" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-REAL</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">Figura a tamaño real. Hasta 2 metros de pura presencia.</p>
+                    <span class="card-tag star">EDICIÓN ESTRELLA</span>
+                </div>
+            </div>
+
+            <!-- T-8 -->
+            <div class="product-card reveal" data-id="T-8" style="transition-delay:.05s;">
+                <div class="card-img"><img src="./assets/luckyDolls/8cm/Pic02.png" alt="LuckyDoll T-8" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-8</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">Llévalo siempre contigo. Con adhesivo para salpicadero. 8 cm.</p>
+                    <span class="card-tag basic">MINI</span>
+                </div>
+            </div>
+
+            <!-- T-14 -->
+            <div class="product-card reveal" data-id="T-14" style="transition-delay:.1s;">
+                <div class="card-img"><img src="./assets/luckyDolls/18cm/Pic01.png" alt="LuckyDoll T-14" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-14</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">Ideal para tienda de club y campañas de promoción. 14 cm.</p>
+                    <span class="card-tag basic">COLECCIÓN</span>
+                </div>
+            </div>
+
+            <!-- T-18 -->
+            <div class="product-card reveal" data-id="T-18" style="transition-delay:.15s;">
+                <div class="card-img"><img src="./assets/luckyDolls/18cm/Pic05.png" alt="LuckyDoll T-18" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-18</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">El formato más vendido. Presencia perfecta en expositor. 18 cm.</p>
+                    <span class="card-tag sell">MÁS VENDIDO</span>
+                </div>
+            </div>
+
+            <!-- T-18 SONIDO -->
+            <div class="product-card reveal" data-id="T-18-S" style="transition-delay:.2s;">
+                <div class="card-img"><img src="./assets/luckyDolls/18cmSonido/Pic01.png" alt="LuckyDoll T-18 Sonido" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-18 SONIDO</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">18 cm con chip de audio integrado. ¡El más llamativo del expositor!</p>
+                    <span class="card-tag sell">MÁS LLAMATIVO</span>
+                </div>
+            </div>
+
+            <!-- T-40 -->
+            <div class="product-card reveal" data-id="T-40" style="transition-delay:.25s;">
+                <div class="card-img"><img src="./assets/luckyDolls/40cm/Pic01.png" alt="LuckyDoll T-40" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-40</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">El centro de atención de cualquier espacio. 40 cm de altura.</p>
+                    <span class="card-tag star">PIEZA CENTRAL</span>
+                </div>
+            </div>
+
+            <!-- T-Pet -->
+            <div class="product-card reveal" data-id="T-Pet" style="transition-delay:.3s;">
+                <div class="card-img"><img src="./assets/luckyDolls/Mascotas/Pic01.png" alt="LuckyDoll T-Pet" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-PET</h3>
+                    <!-- ✏️ REEMPLAZA: TU CLUB -->
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">Diseño exclusivo de la mascota de TU CLUB. Disponible en todos los tamaños.</p>
+                    <span class="card-tag basic">MASCOTA</span>
+                </div>
+            </div>
+
+            <!-- T-Vintage -->
+            <div class="product-card reveal" data-id="T-Vintage" style="transition-delay:.35s;">
+                <div class="card-img"><img src="./assets/luckyDolls/Vintages/Pic01.png" alt="LuckyDoll T-Vintage" onerror="this.parentElement.style.background='#e8e5de';this.style.display='none'"></div>
+                <div style="padding:1.4rem;">
+                    <h3 class="font-display" style="font-size:1.8rem;letter-spacing:.05em;margin-bottom:.4rem;color:var(--ink);">T-VINTAGE</h3>
+                    <p style="font-size:.9rem;color:#666;line-height:1.5;margin-bottom:1rem;font-weight:300;">Sin estrella ni mascota, con toda la esencia del club. Diseño clásico. 14 cm.</p>
+                    <span class="card-tag basic">OLD-SCHOOL</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     COLABORACIÓN
+     ══════════════════════════════════════════════════════════ -->
+<section id="sobre" class="about-section" style="padding:8rem 1.5rem;">
+    <div style="max-width:1400px;margin:auto;position:relative;z-index:1;">
+        <div class="about-cols" style="display:grid;grid-template-columns:1fr;gap:4rem;align-items:center;">
+
+            <div class="reveal">
+                <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:3rem;">
+                    <!-- ✏️ REEMPLAZA por logos reales -->
+                    <div style="width:72px;height:72px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);">
+                        <svg width="32" height="32" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+                    </div>
+                    <span class="font-display" style="font-size:2rem;color:rgba(255,255,255,.2);">×</span>
+                    <div style="width:72px;height:72px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);">
+                        <svg width="32" height="32" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L3 7l1.63 9.27L12 22l7.37-5.73L21 7z"/></svg>
+                    </div>
+                </div>
+
+                <h2 class="font-display" style="font-size:clamp(2.5rem,5vw,4.5rem);line-height:.95;margin-bottom:1.5rem;color:#fff;letter-spacing:.02em;">
+                    UNA COLABORACIÓN<br>HECHA PARA<br><span class="text-accent">EL FAN.</span>
+                </h2>
+
+                <!-- ✏️ REEMPLAZA: MERCHANDREAM y TU CLUB -->
+                <p style="font-size:1.05rem;line-height:1.7;color:rgba(255,255,255,.45);font-weight:300;max-width:460px;">
+                    Este catálogo es el resultado de la colaboración entre <strong style="color:#fff;">MERCHANDREAM</strong> —creadores de la línea LuckyDoll— y <strong style="color:#fff;">TU CLUB</strong>. Juntos llevamos figuras de coleccionista con licencia oficial a los aficionados de todo el mundo.
+                </p>
+            </div>
+
+            <div class="reveal" style="transition-delay:.15s;text-align:right;user-select:none;pointer-events:none;overflow:hidden;display:none;" id="aboutDeco">
+                <span class="font-display" style="font-size:clamp(8rem,20vw,18rem);color:rgba(255,255,255,.04);line-height:1;">×</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PEDIDO / CTA
+     ══════════════════════════════════════════════════════════ -->
+<section id="pedido" class="order-section" style="padding:8rem 1.5rem;">
+    <div style="max-width:1400px;margin:auto;position:relative;z-index:1;">
+        <div class="order-flex" style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:3rem;">
+
+            <div class="reveal">
+                <h2 class="order-title">¿LISTO<br>PARA TU<br>FIGURA<span style="color:rgba(255,255,255,.25);">?</span></h2>
+            </div>
+
+            <div class="reveal" style="transition-delay:.1s;max-width:440px;">
+                <p style="font-size:1.1rem;line-height:1.6;color:rgba(255,255,255,.75);font-weight:300;margin-bottom:2rem;">
+                    Esto es un catálogo de venta, no una tienda directa. Contacta con nuestro equipo comercial indicando los modelos y cantidades que te interesan.
+                </p>
+                <!-- ✏️ REEMPLAZA: email -->
+                <a href="mailto:direccion.general@merchandream.es" target="_blank" class="order-btn">INICIAR PEDIDO POR EMAIL</a>
+                <!-- ✏️ REEMPLAZA: teléfono -->
+                <p style="margin-top:1.5rem;font-size:.85rem;letter-spacing:.1em;color:rgba(255,255,255,.6);">
+                    O llámanos al <strong style="color:#fff;">+34 605 195 744</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════════════════ -->
+<footer style="padding:3rem 1.5rem;background:#050505;border-top:1px solid var(--rule);">
+    <div style="max-width:1400px;margin:auto;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;">
+        <div>
+            <span class="font-display" style="font-size:1.4rem;letter-spacing:.08em;color:#fff;">LUCKY<span class="text-accent">DOLLS</span></span>
+            <!-- ✏️ REEMPLAZA: MERCHANDREAM -->
+            <p style="font-size:.7rem;letter-spacing:.2em;color:rgba(255,255,255,.2);margin-top:.2rem;text-transform:uppercase;">by MERCHANDREAM</p>
+        </div>
+        <!-- ✏️ REEMPLAZA: año y empresa -->
+        <p style="font-size:.75rem;color:rgba(255,255,255,.2);letter-spacing:.1em;">© 2026 MERCHANDREAM — TODOS LOS DERECHOS RESERVADOS</p>
+    </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL DE PRODUCTO
+     ══════════════════════════════════════════════════════════ -->
+<div id="productModal" style="position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;align-items:center;justify-content:center;padding:1rem;">
+    <div class="modal-inner" id="modalInner" style="background:#fff;color:var(--ink);max-width:900px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;position:relative;">
+
+        <button id="modalClose" aria-label="Cerrar" style="position:absolute;top:1rem;right:1rem;z-index:10;background:var(--ink);color:var(--accent);border:none;cursor:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:1rem;">✕</button>
+
+        <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;max-height:92vh;" id="modalLayout">
+
+            <!-- Carrusel -->
+            <div id="carouselPanel" style="position:relative;background:#f0ede6;flex-shrink:0;height:260px;">
+                <img id="modalMainImage" src="" alt="" style="width:100%;height:100%;object-fit:contain;">
+                <button id="modalPrev" aria-label="Anterior" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;cursor:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">‹</button>
+                <button id="modalNext" aria-label="Siguiente" style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);color:#fff;border:none;cursor:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">›</button>
+                <div id="modalThumbnails" style="position:absolute;bottom:.5rem;left:0;right:0;display:flex;justify-content:center;gap:.4rem;padding:0 .5rem;overflow-x:auto;"></div>
+            </div>
+
+            <!-- Info -->
+            <div class="modal-scroll" style="padding:1.5rem;overflow-y:auto;flex:1;">
+                <h3 id="modalName" class="font-display" style="font-size:2.2rem;letter-spacing:.08em;margin-bottom:.5rem;"></h3>
+                <p id="modalDesc" style="font-size:.95rem;color:#555;line-height:1.6;margin-bottom:1.5rem;font-weight:300;"></p>
+                <div id="modalPricingTableContainer" style="margin-bottom:1.5rem;"></div>
+                <p style="font-size:.75rem;color:#999;margin-bottom:1.5rem;letter-spacing:.05em;">PRECIOS SIN IVA. DISEÑO Y COLORES PERSONALIZABLES EN PEDIDOS DE GRAN VOLUMEN.</p>
+                <a id="modalCta" href="#pedido"
+                   style="display:block;text-align:center;font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:.2em;background:var(--accent);color:#fff;padding:1rem 2rem;text-decoration:none;transition:background .2s;"
+                   onmouseover="this.style.background='#0062cc'" onmouseout="this.style.background='var(--accent)'">TRAMITAR PEDIDO →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════════════════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // ── Cursor personalizado ──────────────────────────────────────
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+        cursor.style.left = (e.clientX - 7) + 'px';
+        cursor.style.top  = (e.clientY - 7) + 'px';
+    });
+    document.querySelectorAll('a, button, .product-card').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+    // En móvil, ocultar cursor personalizado
+    if ('ontouchstart' in window) { cursor.style.display = 'none'; document.body.style.cursor = 'auto'; }
+
+    // ── Show deco on desktop ──────────────────────────────────────
+    if (window.innerWidth >= 768) {
+        document.getElementById('aboutDeco').style.display = 'block';
+        document.querySelector('.about-cols').style.gridTemplateColumns = '1fr 1fr';
+    }
+
+    // ── Hamburger ────────────────────────────────────────────────
+    const hamburger  = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const hl1 = document.getElementById('hl1'), hl2 = document.getElementById('hl2'), hl3 = document.getElementById('hl3');
+
+    hamburger.addEventListener('click', () => {
+        const open = mobileMenu.classList.toggle('open');
+        if (open) {
+            hl1.style.transform = 'translateY(7px) rotate(45deg)';
+            hl2.style.opacity   = '0';
+            hl3.style.transform = 'translateY(-7px) rotate(-45deg)';
+            hl3.style.width     = '22px';
+        } else {
+            hl1.style.transform = hl2.style.opacity = hl3.style.transform = '';
+            hl3.style.width = '14px';
+        }
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(l => l.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        hl1.style.transform = hl2.style.opacity = hl3.style.transform = '';
+        hl3.style.width = '14px';
+    }));
+
+    // ── Scroll reveal ─────────────────────────────────────────────
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.07 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // ── Datos de productos ────────────────────────────────────────
+    // ✏️ EDITA descripciones, precios e imágenes aquí
+    const productData = {
+        'T-Real': {
+            name: 'T-REAL',
+            description: 'Figura a tamaño real que inmortaliza a tu estrella con cada detalle. Hasta 2 metros de altura. La pieza definitiva para cualquier espacio.',
+            pricingTiers: [{ minUnits: 1, transport: 'Transporte especial', price: '4.100,00 €' }],
+            images: ['./assets/luckyDolls/Real/Pic01.png','./assets/luckyDolls/Real/Pic02.png','./assets/luckyDolls/Real/Pic03.png']
+        },
+        'T-8': {
+            name: 'T-8',
+            description: 'Ideal para el salpicadero, escritorio o llevar a cualquier parte. Adhesivo en la base. 8 cm.',
+            pricingTiers: [
+                { minUnits: 250,  transport: 'Avión', price: '5,95 €' },
+                { minUnits: 250,  transport: 'Barco', price: '5,45 €' },
+                { minUnits: 500,  transport: 'Avión', price: '3,95 €' },
+                { minUnits: 500,  transport: 'Barco', price: '3,25 €' },
+                { minUnits: 2000, transport: 'Avión', price: '3,35 €' },
+                { minUnits: 2000, transport: 'Barco', price: '2,95 €' }
+            ],
+            moldCost: '200 €',
+            images: [
+                './assets/luckyDolls/8cm/Pic01.png','./assets/luckyDolls/8cm/Pic02.png',
+                './assets/luckyDolls/8cm/Pic03.png','./assets/luckyDolls/8cm/Pic04.png',
+                './assets/luckyDolls/8cm/Pic05.png','./assets/luckyDolls/8cm/Pic06.png',
+                './assets/luckyDolls/8cm/Pic07.png'
+            ]
+        },
+        'T-14': {
+            name: 'T-14',
+            description: 'Excelente para tienda de club, retail y promociones. 14 cm.',
+            pricingTiers: [
+                { minUnits: 250,  transport: 'Avión', price: '8,45 €' },
+                { minUnits: 250,  transport: 'Barco', price: '7,40 €' },
+                { minUnits: 500,  transport: 'Avión', price: '6,35 €' },
+                { minUnits: 500,  transport: 'Barco', price: '5,40 €' },
+                { minUnits: 2000, transport: 'Avión', price: '6,25 €' },
+                { minUnits: 2000, transport: 'Barco', price: '4,60 €' }
+            ],
+            moldCost: '300 €',
+            images: ['./assets/luckyDolls/18cm/Pic01.png', './assets/luckyDolls/14cm/Pic03.png','./assets/luckyDolls/14cm/Pic05.png','./assets/luckyDolls/14cm/Pic07.png']
+        },
+        'T-18': {
+            name: 'T-18',
+            description: 'El formato más vendido. Presencia perfecta en expositor de tienda. 18 cm.',
+            pricingTiers: [
+                { minUnits: 250,  transport: 'Avión', price: '10,10 €' },
+                { minUnits: 250,  transport: 'Barco', price: '8,40 €' },
+                { minUnits: 500,  transport: 'Avión', price: '7,30 €' },
+                { minUnits: 500,  transport: 'Barco', price: '5,60 €' },
+                { minUnits: 2000, transport: 'Avión', price: '7,20 €' },
+                { minUnits: 2000, transport: 'Barco', price: '5,50 €' }
+            ],
+            moldCost: '350 €',
+            images: ['./assets/luckyDolls/18cm/Pic02.png','./assets/luckyDolls/18cm/Pic03.png','./assets/luckyDolls/18cm/Pic04.png', './assets/luckyDolls/18cm/Pic05.png']
+        },
+        'T-18-S': {
+            name: 'T-18 SONIDO',
+            description: '18 cm de actitud con sonido incluido. Pulsa el botón y escucha a tu club. ¡El más llamativo del expositor!',
+            pricingTiers: [
+                { minUnits: 250,  transport: 'Avión', price: '11,50 €' },
+                { minUnits: 250,  transport: 'Barco', price: '9,80 €' },
+                { minUnits: 500,  transport: 'Avión', price: '8,00 €' },
+                { minUnits: 500,  transport: 'Barco', price: '6,30 €' },
+                { minUnits: 2000, transport: 'Avión', price: '7,90 €' },
+                { minUnits: 2000, transport: 'Barco', price: '6,20 €' }
+            ],
+            moldCost: '450 €',
+            images: ['./assets/luckyDolls/18cmSonido/Pic01.png']
+        },
+        'T-40': {
+            name: 'T-40',
+            description: 'Diseñada para ser el centro de atención. 40 cm de altura. La pieza perfecta para estantería, vitrina o escritorio.',
+            pricingTiers: [
+                { minUnits: 100,  transport: 'Avión', price: '73,00 €' },
+                { minUnits: 100,  transport: 'Barco', price: '60,50 €' },
+                { minUnits: 300,  transport: 'Avión', price: '56,00 €' },
+                { minUnits: 300,  transport: 'Barco', price: '43,50 €' },
+                { minUnits: 1000, transport: 'Avión', price: '55,00 €' },
+                { minUnits: 1000, transport: 'Barco', price: '42,50 €' }
+            ],
+            moldCost: '580 €',
+            images: ['./assets/luckyDolls/40cm/Pic01.png']
+        },
+        'T-Pet': {
+            name: 'T-PET',
+            description: 'Diseño específico de la mascota de cada club. El más recomendado en 14 cm. Disponible en todos los tamaños.',
+            pricingTiers: [
+                { minUnits: 250,  transport: 'Avión', price: '10,10 €' },
+                { minUnits: 250,  transport: 'Barco', price: '8,40 €' },
+                { minUnits: 500,  transport: 'Avión', price: '7,30 €' },
+                { minUnits: 500,  transport: 'Barco', price: '5,60 €' },
+                { minUnits: 2000, transport: 'Avión', price: '7,20 €' },
+                { minUnits: 2000, transport: 'Barco', price: '5,50 €' }
+            ],
+            moldCost: '300 €',
+            images: ['./assets/luckyDolls/Mascotas/Pic01.png','./assets/luckyDolls/Mascotas/Pic02.png','./assets/luckyDolls/Mascotas/Pic03.png']
+        },
+        'T-Vintage': {
+            name: 'T-VINTAGE',
+            description: 'Para clubs sin mascota ni jugador estrella. Un diseño clásico con toda la esencia. 14 cm.',
+            pricingTiers: [
+                { minUnits: 250,  transport: 'Avión', price: '8,80 €' },
+                { minUnits: 250,  transport: 'Barco', price: '6,72 €' },
+                { minUnits: 500,  transport: 'Avión', price: '8,48 €' },
+                { minUnits: 500,  transport: 'Barco', price: '6,38 €' },
+                { minUnits: 2000, transport: 'Avión', price: '8,15 €' },
+                { minUnits: 2000, transport: 'Barco', price: '5,98 €' }
+            ],
+            moldCost: '150 €',
+            images: [
+                './assets/luckyDolls/Vintages/Pic01.png','./assets/luckyDolls/Vintages/Pic02.png',
+                './assets/luckyDolls/Vintages/Pic03.png','./assets/luckyDolls/Vintages/Pic04.png',
+                './assets/luckyDolls/Vintages/Pic05.png','./assets/luckyDolls/Vintages/Pic06.png',
+                './assets/luckyDolls/Vintages/Pic07.png','./assets/luckyDolls/Vintages/Pic08.png',
+                './assets/luckyDolls/Vintages/Pic09.png','./assets/luckyDolls/Vintages/Pic10.png',
+                './assets/luckyDolls/Vintages/Pic11.png','./assets/luckyDolls/Vintages/Pic12.png',
+                './assets/luckyDolls/Vintages/Pic13.png','./assets/luckyDolls/Vintages/Pic14.png',
+                './assets/luckyDolls/Vintages/Pic15.png','./assets/luckyDolls/Vintages/Pic16.png',
+                './assets/luckyDolls/Vintages/Pic17.png'
+            ]
+        }
+    };
+
+    // ── Modal ─────────────────────────────────────────────────────
+    const modal      = document.getElementById('productModal');
+    const modalClose = document.getElementById('modalClose');
+    const modalCta   = document.getElementById('modalCta');
+    const modalMainImage             = document.getElementById('modalMainImage');
+    const modalThumbnails            = document.getElementById('modalThumbnails');
+    const modalPrev  = document.getElementById('modalPrev');
+    const modalNext  = document.getElementById('modalNext');
+    const modalName  = document.getElementById('modalName');
+    const modalDesc  = document.getElementById('modalDesc');
+    const modalPricingTableContainer = document.getElementById('modalPricingTableContainer');
+    let currentProductId = null, currentImageIndex = 0;
+
+    function populatePricingTable(product) {
+        modalPricingTableContainer.innerHTML = '';
+        const { pricingTiers: tiers, moldCost } = product;
+        if (!tiers || !tiers.length) {
+            modalPricingTableContainer.innerHTML = '<p style="color:#999;font-size:.85rem;">Contacta para cotización personalizada.</p>';
+            return;
+        }
+        let html = `
+        <p style="font-family:'Anton',sans-serif;font-size:.65rem;letter-spacing:.2em;color:#999;margin-bottom:.5rem;">TABLA DE PRECIOS (por Ud.)</p>
+        <div style="overflow-x:auto;border:1px solid #e0ddd6;">
+          <table class="price-table" style="width:100%;border-collapse:collapse;font-size:.85rem;">
+            <thead>
+              <tr>
+                <th style="padding:.6rem .9rem;text-align:left;font-family:'Anton',sans-serif;letter-spacing:.1em;font-size:.7rem;background:var(--ink);color:var(--accent);">UNIDADES MÍN.</th>
+                <th style="padding:.6rem .9rem;text-align:left;font-family:'Anton',sans-serif;letter-spacing:.1em;font-size:.7rem;background:var(--ink);color:var(--accent);">TRANSPORTE</th>
+                <th style="padding:.6rem .9rem;text-align:left;font-family:'Anton',sans-serif;letter-spacing:.1em;font-size:.7rem;background:var(--ink);color:var(--accent);">PRECIO / UD.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tiers.map(t => `
+              <tr style="border-top:1px solid #e0ddd6;">
+                <td style="padding:.55rem .9rem;font-weight:500;color:var(--ink);">${t.minUnits}</td>
+                <td style="padding:.55rem .9rem;color:#555;">${t.transport}</td>
+                <td style="padding:.55rem .9rem;font-family:'Anton',sans-serif;font-size:1.05rem;color:var(--ink);">${t.price}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:.7rem;color:#aaa;margin-top:.4rem;letter-spacing:.05em;">El barco (más económico) implica mayores tiempos de entrega.</p>`;
+        if (moldCost) {
+            html += `
+            <div style="margin-top:1rem;border-left:3px solid var(--accent);background:#fffde6;padding:.9rem 1rem;font-size:.85rem;color:var(--ink);">
+                <strong style="font-family:'Anton',sans-serif;letter-spacing:.1em;font-size:.75rem;">COSTE DE MOLDE</strong>
+                <p style="margin-top:.25rem;font-weight:300;color:#555;">Aprox. <strong>${moldCost}</strong> por diseño. Se abona una única vez.</p>
+            </div>`;
+        }
+        modalPricingTableContainer.innerHTML = html;
+    }
+
+    function updateCarousel() {
+        const images = productData[currentProductId].images;
+        if (currentImageIndex < 0) currentImageIndex = images.length - 1;
+        if (currentImageIndex >= images.length) currentImageIndex = 0;
+        modalMainImage.src = images[currentImageIndex];
+        modalThumbnails.innerHTML = '';
+        images.forEach((src, i) => {
+            const t = document.createElement('img');
+            t.src = src; t.alt = `img ${i+1}`;
+            t.style.cssText = 'width:40px;height:40px;object-fit:cover;cursor:none;border:2px solid transparent;transition:border-color .2s;';
+            t.className = 'thumbnail-image';
+            if (i === currentImageIndex) t.classList.add('active');
+            t.addEventListener('click', () => { currentImageIndex = i; updateCarousel(); });
+            modalThumbnails.appendChild(t);
+        });
+    }
+
+    function openModal(id) {
+        const product = productData[id];
+        if (!product) return;
+        currentProductId = id; currentImageIndex = 0;
+        modalName.textContent = product.name;
+        modalDesc.textContent = product.description;
+        populatePricingTable(product);
+        updateCarousel();
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
+        modalPricingTableContainer.innerHTML = '';
+    }
+
+    document.querySelectorAll('.product-card').forEach(c => c.addEventListener('click', () => openModal(c.dataset.id)));
+    modalClose.addEventListener('click', closeModal);
+    modalCta.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    modalPrev.addEventListener('click', () => { currentImageIndex--; updateCarousel(); });
+    modalNext.addEventListener('click', () => { currentImageIndex++; updateCarousel(); });
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
